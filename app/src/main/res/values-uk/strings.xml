@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Flat</string>
+    <string name="enjoy">Приємної гри</string>
+    <string name="tap_me">Натисни на мене</string>
+    <string name="title_activity_tutorial">Навчання</string>
+    <string name="title_activity_records">Рекорди</string>
+    <string name="button_f">Ф</string>
+    <string name="button_l">Л</string>
+    <string name="button_a">Е</string>
+    <string name="button_t">Т</string>
+    <string name="button_tutorial">Навчання</string>
+    <string name="button_play">Грати</string>
+    <string name="button_settings">Налаштування</string>
+    <string name="button_records">Рекорди</string>
+    <string name="button_normal">Нормально</string>
+    <string name="button_hard">Складно</string>
+    <string name="button_hardcore">Дуже складно</string>
+    <string name="button_ysnp">Ти не пройдеш</string>
+    <string name="win">Ти переміг</string>
+    <string name="lose">Ти програв</string>
+    <string name="vibration">Вібрація</string>
+    <string name="sound">Звук</string>
+    <string name="lang">Мова</string>
+    <string name="ua">Українська</string>
+    <string name="en">Англійська</string>
+    <string name="theme">Тема</string>
+    <string name="def">Стандартна</string>
+    <string name="alt">Альтернативна</string>
+    <string name="mode">Режим</string>
+    <string name="normal">Звичайний</string>
+    <string name="timer">Таймер</string>
+    <string name="tutorial">Кубики пофарбовані з чотирьох сторін у кольори, вказані в заголовку. Після натискання на них вони змінюють свій колір на інший в порядку, показаному в заголовку. Але особливий способом. Існує три типи кликів. Перший клік змінює колір кубика, на який ви натиснули. Другий клік змінює колір чотирьох навколо лежачих кубиків. Третій клік змінює колір чотирьох кубів, що лежать через один від кубика, на який ви натиснули. Після цього цикл повторюється. Завдання гри полягає в тому, щоб зафарбувати всі куби в колір фону за мінімальну кількість ходів.</string>
+</resources>
