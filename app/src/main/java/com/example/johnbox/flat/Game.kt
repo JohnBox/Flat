@@ -10,8 +10,16 @@ import android.os.Vibrator
 import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.support.annotation.IdRes
 import android.view.View
-import android.widget.*
-import java.util.*
+import android.widget.Button
+import android.widget.GridLayout
+import android.widget.LinearLayout
+import android.widget.TextView
+import java.util.Optional
+import java.util.Random
+import kotlin.jvm.optionals.getOrDefault
+import kotlin.jvm.optionals.getOrElse
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.DurationUnit
 
 class Game : Activity() {
     private var clickCount = 0
@@ -21,15 +29,15 @@ class Game : Activity() {
     private var gameOver = false
     private var normalMode = true
     private var timer = false
-    private var timerCount = 10
+    private var currentTimer: Optional<CountDownTimer> = Optional.empty();
     private var displayWidth: Int = 0
     private val background: LinearLayout by lazyBind(R.id.background)
     private val grid: GridLayout by lazyBind(R.id.grid)
     private val score: TextView by lazyBind(R.id.score)
     private val win: TextView by lazyBind(R.id.win)
     private val params = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
+        LinearLayout.LayoutParams.WRAP_CONTENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
     )
 
     private lateinit var vibrator: Vibrator
@@ -65,7 +73,7 @@ class Game : Activity() {
             timer = true
             win.alpha = 1f
         }
-        val extraSize = intent.extras.get("size") as String
+        val extraSize = intent.extras?.get("size") as String
         size = extraSize.toInt()
         grid.rowCount = size
         grid.columnCount = size
@@ -78,26 +86,26 @@ class Game : Activity() {
 
     override fun onPause() {
         super.onPause()
-        overridePendingTransition(0,0)
+        overridePendingTransition(0, 0)
     }
 
     private fun initGame() {
         winColorIndex = Random().nextInt(4)
         background.setBackgroundColor(bgColors[winColorIndex])
         val margin = 4
-        val width = displayWidth - (2*margin) - (margin * 2 * size)
+        val width = displayWidth - (2 * margin) - (margin * 2 * size)
         val bSize = width / size
         val gridSize = size * size
         grid.setPadding(margin, margin, margin, margin)
         var i = 1
-        while (i <= gridSize ) {
+        while (i <= gridSize) {
             val b = Button(this)
             b.id = i
             b.isSoundEffectsEnabled = true
             b.setOnClickListener(onClick)
-            b.minimumWidth = bSize; b.width= bSize
+            b.minimumWidth = bSize; b.width = bSize
             b.minimumHeight = bSize; b.height = bSize
-            params.setMargins(margin,margin,margin,margin)
+            params.setMargins(margin, margin, margin, margin)
             b.layoutParams = params
             val colorIndex = Random().nextInt(4)
             b.tag = colorIndex
@@ -134,25 +142,23 @@ class Game : Activity() {
     }
 
     private fun startTimer() {
-        object : CountDownTimer(30000,1000) {
-            override fun onTick(p0: Long) {
+        if (currentTimer.isPresent) {
+            currentTimer.get().cancel();
+        }
+        currentTimer = Optional.of(object : CountDownTimer(10_000, 1000) {
+            override fun onTick(untilFinished: Long) {
                 if (gameOver) {
                     cancel()
                     return
                 }
-                if (timerCount == 0) {
-                    cancel()
-                    gameOver(true)
-                    return
-                }
-                win.text = timerCount.toString()
-                timerCount--
+                win.text = untilFinished.milliseconds.toInt(DurationUnit.SECONDS).toString()
             }
+
             override fun onFinish() {
                 gameOver(true)
             }
-        }.start()
-        timer = false
+        });
+        currentTimer.get().start()
     }
 
     private fun stepZero(cid: Int) {
@@ -167,7 +173,7 @@ class Game : Activity() {
     private fun stepOne(cid: Int) {
         var colorIndex: Int
         var nextColorIndex: Int
-        val lid = if (cid % size != 1) cid-1 else -1
+        val lid = if (cid % size != 1) cid - 1 else -1
         if (lid != -1) {
             val l = bind<Button>(lid)
             colorIndex = l.tag as Int
@@ -175,7 +181,7 @@ class Game : Activity() {
             setButtonColor(l, nextColorIndex)
             l.tag = nextColorIndex
         }
-        val rid = if (cid % size != 0) cid+1 else -1
+        val rid = if (cid % size != 0) cid + 1 else -1
         if (rid != -1) {
             val r = bind<Button>(rid)
             colorIndex = r.tag as Int
@@ -183,7 +189,7 @@ class Game : Activity() {
             setButtonColor(r, nextColorIndex)
             r.tag = nextColorIndex
         }
-        val tid = if (cid - size > 0) cid-size else -1
+        val tid = if (cid - size > 0) cid - size else -1
         if (tid != -1) {
             val t = bind<Button>(tid)
             colorIndex = t.tag as Int
@@ -191,7 +197,7 @@ class Game : Activity() {
             setButtonColor(t, nextColorIndex)
             t.tag = nextColorIndex
         }
-        val bid = if (cid + size <= size * size) cid+size else -1
+        val bid = if (cid + size <= size * size) cid + size else -1
         if (bid != -1) {
             val b = bind<Button>(bid)
             colorIndex = b.tag as Int
@@ -205,7 +211,7 @@ class Game : Activity() {
     private fun stepTwo(cid: Int) {
         var colorIndex: Int
         var nextColorIndex: Int
-        val lid = if ((cid % size != 1) and (cid % size != 2)) cid-2 else -1
+        val lid = if ((cid % size != 1) and (cid % size != 2)) cid - 2 else -1
         if (lid != -1) {
             val l = bind<Button>(lid)
             colorIndex = l.tag as Int
@@ -213,7 +219,7 @@ class Game : Activity() {
             setButtonColor(l, nextColorIndex)
             l.tag = nextColorIndex
         }
-        val rid = if ((cid % size != size - 1) and (cid % size != 0)) cid+2 else -1
+        val rid = if ((cid % size != size - 1) and (cid % size != 0)) cid + 2 else -1
         if (rid != -1) {
             val r = bind<Button>(rid)
             colorIndex = r.tag as Int
@@ -221,7 +227,7 @@ class Game : Activity() {
             setButtonColor(r, nextColorIndex)
             r.tag = nextColorIndex
         }
-        val tid = if (cid - 2*size > 0) cid-2*size else -1
+        val tid = if (cid - 2 * size > 0) cid - 2 * size else -1
         if (tid != -1) {
             val t = bind<Button>(tid)
             colorIndex = t.tag as Int
@@ -229,7 +235,7 @@ class Game : Activity() {
             setButtonColor(t, nextColorIndex)
             t.tag = nextColorIndex
         }
-        val bid = if (cid + 2*size <= size * size) cid+2*size else -1
+        val bid = if (cid + 2 * size <= size * size) cid + 2 * size else -1
         if (bid != -1) {
             val b = bind<Button>(bid)
             colorIndex = b.tag as Int
@@ -260,8 +266,10 @@ class Game : Activity() {
         if (lose)
             win.text = getString(R.string.lose)
         else
+        {
+            saveScore()
             win.text = getString(R.string.win)
-        saveScore()
+        }
         grid.animate().alpha(0f).setDuration(1000).start()
         win.animate().alpha(100f).setDuration(1000).start()
     }
@@ -273,7 +281,7 @@ class Game : Activity() {
             "timer"
         mode += size.toString()
         val prev = settings.getInt(mode, 0)
-        if (clickCount > prev)
+        if (prev == 0 || clickCount < prev)
             settings.edit().putInt(mode, clickCount).apply()
     }
 
@@ -299,14 +307,14 @@ class Game : Activity() {
     private fun nextColor(colorIndex: Int): Int = (colorIndex + 1) % 4
 
     private fun setButtonColor(button: Button, colorIndex: Int) =
-            button.setBackgroundColor(fgColors[colorIndex])
+        button.setBackgroundColor(fgColors[colorIndex])
 
-    private fun <T: View> Activity.bind(@IdRes id: Int): T {
+    private fun <T : View> Activity.bind(@IdRes id: Int): T {
         @Suppress("UNCHECKED_CAST")
         return findViewById(id)
     }
 
-    private fun <T: View> Activity.lazyBind(@IdRes id: Int): Lazy<T> {
+    private fun <T : View> Activity.lazyBind(@IdRes id: Int): Lazy<T> {
         @Suppress("UNCHECKED_CAST")
         return lazy { findViewById<T>(id) }
     }
